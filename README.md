@@ -39,25 +39,18 @@
 
 Arcane follows a **Plan → Research → Critique → Synthesize** loop, orchestrated as a stateful graph:
 
-```
-                    ┌─────────────────────────────────────────────────┐
-                    │                                                 │
-  📝 User Query    │    🧭 Plan  →  ❓ Generate Queries              │
-       │           │         │                                       │
-       ▼           │         ▼                                       │
-   ┌───────┐       │    🔍 Retrieve & Search  ◄──── (loop per query) │
-   │ START │──────►│         │                                       │
-   └───────┘       │         ▼                                       │
-                   │    📊 Synthesize Report                         │
-                   │         │                                       │
-                   │         ▼                                       │
-                   │    📝 Critique ──── Score < 0.8? ──► Revise ◄───┘
-                   │         │
-                   │    Score ≥ 0.8 or max revisions reached
-                   │         │
-                   │         ▼
-                   │    ✅ Final Report + Citations
-                   └─────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    A["📝 User Query"] --> B["🧭 Plan Research"]
+    B --> C["❓ Generate Queries"]
+    C --> D["🔍 Retrieve & Search"]
+    D --> E{"More Queries?"}
+    E -- Yes --> D
+    E -- No --> F["📊 Synthesize Report"]
+    F --> G["📝 Critique Report"]
+    G --> H{"Score ≥ 0.8?"}
+    H -- "No & revisions < 3" --> F
+    H -- "Yes or max reached" --> I["✅ Final Report + Citations"]
 ```
 
 **Example:** Ask *"What are the latest advances in protein folding prediction using AI?"*
