@@ -422,139 +422,7 @@ Events:
 
 ---
 
-## 5. Proposed Changes — File-by-File
-
-### Configuration & Setup
-
-#### [NEW] [pyproject.toml](file:///c:/Users/ASUS/Desktop/arcane/pyproject.toml)
-Project metadata, dependencies (langgraph, crewai, redis, cohere, duckduckgo-search, fastapi, pydantic, httpx, beautifulsoup4, structlog, etc.), and tool configuration.
-
-#### [NEW] [.env.example](file:///c:/Users/ASUS/Desktop/arcane/.env.example)
-Template for required environment variables: `COHERE_API_KEY`, `REDIS_URL`, `LOG_LEVEL`, etc.
-
-#### [NEW] [docker-compose.yml](file:///c:/Users/ASUS/Desktop/arcane/docker-compose.yml)
-Redis Stack (with RediSearch + RedisJSON modules) and optional app container.
-
----
-
-### Core Package
-
-#### [NEW] [config.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/config.py)
-Pydantic BaseSettings for type-safe configuration loading from `.env` file.
-
-#### [NEW] [main.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/main.py)
-Application entry point — initializes services, builds the graph, exposes CLI and API modes.
-
----
-
-### Graph Module (LangGraph Orchestration)
-
-#### [NEW] [graph/state.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/graph/state.py)
-`ResearchState` TypedDict defining the full state schema for the workflow.
-
-#### [NEW] [graph/nodes.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/graph/nodes.py)
-Node functions: `plan_research()`, `generate_queries()`, `retrieve_and_search()`, `analyze_findings()`, `synthesize_report()`, `critique_report()`, `finalize_report()`. Each node reads from and writes to `ResearchState`.
-
-#### [NEW] [graph/edges.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/graph/edges.py)
-Conditional edge functions: `should_continue_queries()` (checks if more sub-queries remain), `should_revise()` (checks critique score against threshold and revision count).
-
-#### [NEW] [graph/builder.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/graph/builder.py)
-Constructs and compiles the `StateGraph` with all nodes, edges, and conditional routing. Returns the compiled graph with Redis checkpointer.
-
-#### [NEW] [graph/checkpointer.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/graph/checkpointer.py)
-Redis-backed checkpointer for LangGraph state persistence and crash recovery.
-
----
-
-### Agent Module (CrewAI)
-
-#### [NEW] [agents/planner.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/agents/planner.py)
-Planner agent definition with role, goal, backstory, and structured output format.
-
-#### [NEW] [agents/researcher.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/agents/researcher.py)
-Researcher agent with tool bindings (DuckDuckGo, Academic Search, Web Scraper, Reranker).
-
-#### [NEW] [agents/critic.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/agents/critic.py)
-Critic agent with evaluation rubric and structured feedback output.
-
-#### [NEW] [agents/synthesizer.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/agents/synthesizer.py)
-Synthesizer agent for report generation with citation formatting.
-
-#### [NEW] [agents/query_generator.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/agents/query_generator.py)
-Query generator agent for dynamic search query optimization.
-
-#### [NEW] [agents/crew.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/agents/crew.py)
-Crew assembly — creates task objects, binds agents to tasks, configures process type (sequential/hierarchical), and integrates with LangGraph nodes.
-
----
-
-### Tool Module
-
-#### [NEW] [tools/web_search.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/tools/web_search.py)
-DuckDuckGo search wrapper with structured output, rate limiting, and error handling.
-
-#### [NEW] [tools/academic_search.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/tools/academic_search.py)
-Semantic Scholar + arXiv API integration for academic paper retrieval.
-
-#### [NEW] [tools/web_scraper.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/tools/web_scraper.py)
-Clean text extraction from web pages using trafilatura/BeautifulSoup.
-
-#### [NEW] [tools/document_loader.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/tools/document_loader.py)
-PDF and document ingestion with chunking and metadata extraction.
-
-#### [NEW] [tools/reranker.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/tools/reranker.py)
-Cohere Rerank v3.5 integration for result relevance scoring.
-
----
-
-### RAG Module
-
-#### [NEW] [rag/embeddings.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/rag/embeddings.py)
-Cohere embedding wrapper with batch processing and input type handling.
-
-#### [NEW] [rag/vectorstore.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/rag/vectorstore.py)
-Redis vector store using RedisVL — index creation, document upsert, hybrid search.
-
-#### [NEW] [rag/retriever.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/rag/retriever.py)
-Hybrid retriever combining vector similarity with BM25 keyword matching.
-
-#### [NEW] [rag/cache.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/rag/cache.py)
-Semantic cache — embeds queries, checks similarity against cached responses, stores new results.
-
-#### [NEW] [rag/pipeline.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/rag/pipeline.py)
-End-to-end RAG pipeline: cache check → retrieval → reranking → generation → cache store.
-
----
-
-### Memory & API Modules
-
-#### [NEW] [memory/redis_memory.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/memory/redis_memory.py)
-Redis-backed conversation memory with configurable window size and summarization.
-
-#### [NEW] [memory/session.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/memory/session.py)
-Session state management — create, retrieve, update, delete research sessions.
-
-#### [NEW] [api/app.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/api/app.py)
-FastAPI application factory with CORS, error handlers, and lifespan management.
-
-#### [NEW] [api/routes/research.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/api/routes/research.py)
-Research CRUD endpoints with async graph invocation.
-
-#### [NEW] [api/routes/sessions.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/api/routes/sessions.py)
-Session listing and management endpoints.
-
-#### [NEW] [api/routes/health.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/api/routes/health.py)
-Health and readiness probes (checks Redis connectivity, API key validity).
-
-#### [NEW] [api/schemas.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/api/schemas.py)
-Pydantic models for all request/response payloads.
-
-#### [NEW] [api/websocket.py](file:///c:/Users/ASUS/Desktop/arcane/arcane/api/websocket.py)
-WebSocket handler for real-time streaming of research progress.
-
----
-
-## 6. Key Workflow: End-to-End Research Session
+## 5. Key Workflow: End-to-End Research Session
 
 Here's what happens when a user submits: *"What are the latest advances in protein folding prediction using AI?"*
 
@@ -639,7 +507,7 @@ Approved report → Format citations → Generate metadata → Store in Redis �
 
 ---
 
-## 7. Dependencies
+## 6. Dependencies
 
 ```toml
 [project]
@@ -698,33 +566,7 @@ dev = [
 
 ---
 
-## 8. User Review Required
-
-> [!IMPORTANT]
-> **LLM Provider Choice**: The plan uses **Cohere** as the primary LLM (Command R+ for generation, Embed v3 for embeddings, Rerank v3.5 for reranking). This gives you a unified API for all three capabilities. Would you like to use a different LLM provider (OpenAI, Anthropic, Google) for generation while keeping Cohere for embeddings/reranking?
-
-> [!IMPORTANT]
-> **Redis Deployment**: The plan assumes a local Redis Stack instance via Docker. Do you have an existing Redis instance, or should we set up Redis Cloud? Do you have Docker installed?
-
-> [!WARNING]
-> **API Keys Required**: You'll need a Cohere API key (free tier available at cohere.com). The DuckDuckGo search tool is free and keyless. Semantic Scholar API has an optional API key for higher rate limits.
-
-> [!IMPORTANT]
-> **Frontend**: This plan focuses on the backend (API + CLI). Would you also like a web frontend (e.g., Next.js or a simple HTML/JS dashboard) for interacting with Arcane?
-
----
-
-## 9. Open Questions
-
-1. **Scope of First Version**: Should we build the full system in one go, or would you prefer an iterative approach (e.g., Phase 1: Core graph + tools, Phase 2: CrewAI agents, Phase 3: API + caching)?
-2. **Document Ingestion**: Do you need the ability to upload and index your own PDFs/documents, or is web + academic search sufficient for v1?
-3. **Human-in-the-Loop**: Should the critique loop be fully autonomous, or would you like approval gates where you can review and provide feedback before the next revision?
-4. **Output Format**: Should the final research report be Markdown, PDF, or both?
-5. **Testing Strategy**: Do you want comprehensive unit tests from the start, or should we focus on integration tests for the pipeline?
-
----
-
-## 10. Verification Plan
+## 7. Verification Plan
 
 ### Automated Tests
 ```bash
@@ -751,52 +593,4 @@ ruff check arcane/
 
 ---
 
-## 11. Walkthrough: Building Arcane Step-by-Step
 
-### Phase 1: Foundation (Estimated: 2-3 hours)
-1. Initialize the project with `pyproject.toml` and install dependencies
-2. Set up Docker Compose for Redis Stack
-3. Create configuration management (`config.py`)
-4. Implement basic logging (`utils/logging.py`)
-5. Test Redis connectivity
-
-### Phase 2: Tools & RAG (Estimated: 3-4 hours)
-1. Implement DuckDuckGo search tool
-2. Implement Academic search tool (Semantic Scholar + arXiv)
-3. Implement Web scraper tool
-4. Set up Cohere embeddings wrapper
-5. Create Redis vector store with RedisVL
-6. Implement hybrid retriever
-7. Build semantic cache
-8. Implement Cohere reranker tool
-9. Assemble the RAG pipeline
-
-### Phase 3: Agents (Estimated: 2-3 hours)
-1. Define all 5 CrewAI agents with roles, goals, backstories
-2. Create task definitions with structured outputs
-3. Assemble crews with appropriate process types
-4. Test individual agents in isolation
-
-### Phase 4: LangGraph Orchestration (Estimated: 3-4 hours)
-1. Define the `ResearchState` schema
-2. Implement all graph node functions
-3. Implement conditional edge logic
-4. Build and compile the state graph
-5. Set up Redis checkpointing
-6. Test the full graph execution end-to-end
-
-### Phase 5: API & Streaming (Estimated: 2-3 hours)
-1. Create FastAPI application with routes
-2. Implement WebSocket streaming handler
-3. Add session management
-4. Create Pydantic schemas for all endpoints
-5. Test API endpoints
-
-### Phase 6: Polish & Testing (Estimated: 2-3 hours)
-1. Write unit tests for tools and RAG components
-2. Write integration tests for the pipeline
-3. Add retry/backoff logic for external APIs
-4. Performance optimization (caching, batching)
-5. Create README with usage instructions
-
-**Total Estimated Development Time: 14-20 hours**
