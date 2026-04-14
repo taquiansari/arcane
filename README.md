@@ -66,12 +66,12 @@ flowchart TD
 
 ## 🖥️ Web UI
 
+<img width="1707" height="917" alt="image" src="https://github.com/user-attachments/assets/77390d82-ef4b-47a0-ae8c-c805d7d3336d" />
+
+
 <div align="center">
 
-<!-- Replace the path below with your actual screenshot -->
-<!-- ![Arcane Web UI](docs/screenshots/web-ui.png) -->
-
-*Screenshot coming soon — launch with `arcane serve` and open http://localhost:8000*
+*launch with `arcane serve` and open http://localhost:8000*
 
 </div>
 
